@@ -394,77 +394,74 @@ function group(array, keySelector, valueSelector) {
 
 const cssSelectorBuilder = {
   selector: '',
+  rightOrder: [
+    'element',
+    'id',
+    'class',
+    'attr',
+    'pseudoClass',
+    'pseudoElement',
+  ],
+  onceOrder: [0, 1, 5], // index from rightOrder arr for id, el, psEl
 
-  element: (value) => {
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += value;
-    } else {
-      cssSelectorBuilder.selector = value;
-    }
-    return cssSelectorBuilder;
+  element(value) {
+    return this.validateAndAddValue('element', `${value}`);
   },
 
-  id: (value) => {
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += `#${value}`;
-    } else {
-      cssSelectorBuilder.selector = `#${value}`;
-    }
-    return cssSelectorBuilder;
+  id(value) {
+    return this.validateAndAddValue('id', `#${value}`);
   },
 
-  class: (value) => {
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += `.${value}`;
-    } else {
-      cssSelectorBuilder.selector = `.${value}`;
-    }
-    return cssSelectorBuilder;
+  class(value) {
+    return this.validateAndAddValue('class', `.${value}`);
   },
 
-  attr: (value) => {
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += `[${value}]`;
-    } else {
-      cssSelectorBuilder.selector = `[${value}]`;
-    }
-    return cssSelectorBuilder;
+  attr(value) {
+    return this.validateAndAddValue('attr', `[${value}]`);
   },
 
-  pseudoClass: (value) => {
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += `:${value}`;
-    } else {
-      cssSelectorBuilder.selector = `:${value}`;
-    }
-    return cssSelectorBuilder;
+  pseudoClass(value) {
+    return this.validateAndAddValue('pseudoClass', `:${value}`);
   },
 
-  pseudoElement: (value) => {
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += `::${value}`;
-    } else {
-      cssSelectorBuilder.selector = `::${value}`;
-    }
-    return cssSelectorBuilder;
+  pseudoElement(value) {
+    return this.validateAndAddValue('pseudoElement', `::${value}`);
   },
 
-  combine: (selector1, combinator, selector2) => {
-    const sel1 = selector1.stringify();
-    const sel2 = selector2.stringify();
+  combine(selector1, combinator, selector2) {
+    const obj = Object.create(this);
 
-    if (cssSelectorBuilder.selector) {
-      cssSelectorBuilder.selector += `${sel1} ${combinator} ${sel2}`;
-    } else {
-      cssSelectorBuilder.selector = `${sel1} ${combinator} ${sel2}`;
-    }
-    return cssSelectorBuilder;
+    obj.selector = `${selector1.selector} ${combinator} ${selector2.selector}`;
+
+    return obj;
   },
 
-  stringify: () => {
-    const { selector } = cssSelectorBuilder;
-    cssSelectorBuilder.selector = '';
-    return selector;
+  stringify() {
+    console.log(this);
+    return this.selector;
+  },
+
+  validateAndAddValue(selector, value) {
+    let index;
+    this.rightOrder.forEach((item, i) => {
+      if (item === selector) {
+        index = i;
+      }
+    });
+    if (this.order > index) {
+      throw Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    }
+    if (this.order === index && this.onceOrder.includes(index)) {
+      throw Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector'
+      );
+    }
+    const obj = Object.create(this);
+    obj.selector = this.selector + value;
+    obj.order = index;
+    return obj;
   },
 };
 
