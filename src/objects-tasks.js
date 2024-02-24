@@ -437,7 +437,6 @@ const cssSelectorBuilder = {
   },
 
   stringify() {
-    console.log(this);
     return this.selector;
   },
 
