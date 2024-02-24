@@ -393,32 +393,78 @@ function group(array, keySelector, valueSelector) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  selector: '',
+
+  element: (value) => {
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += value;
+    } else {
+      cssSelectorBuilder.selector = value;
+    }
+    return cssSelectorBuilder;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id: (value) => {
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += `#${value}`;
+    } else {
+      cssSelectorBuilder.selector = `#${value}`;
+    }
+    return cssSelectorBuilder;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class: (value) => {
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += `.${value}`;
+    } else {
+      cssSelectorBuilder.selector = `.${value}`;
+    }
+    return cssSelectorBuilder;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr: (value) => {
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += `[${value}]`;
+    } else {
+      cssSelectorBuilder.selector = `[${value}]`;
+    }
+    return cssSelectorBuilder;
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass: (value) => {
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += `:${value}`;
+    } else {
+      cssSelectorBuilder.selector = `:${value}`;
+    }
+    return cssSelectorBuilder;
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement: (value) => {
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += `::${value}`;
+    } else {
+      cssSelectorBuilder.selector = `::${value}`;
+    }
+    return cssSelectorBuilder;
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine: (selector1, combinator, selector2) => {
+    const sel1 = selector1.stringify();
+    const sel2 = selector2.stringify();
+
+    if (cssSelectorBuilder.selector) {
+      cssSelectorBuilder.selector += `${sel1} ${combinator} ${sel2}`;
+    } else {
+      cssSelectorBuilder.selector = `${sel1} ${combinator} ${sel2}`;
+    }
+    return cssSelectorBuilder;
+  },
+
+  stringify: () => {
+    const { selector } = cssSelectorBuilder;
+    cssSelectorBuilder.selector = '';
+    return selector;
   },
 };
 
